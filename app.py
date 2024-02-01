@@ -1,7 +1,8 @@
 """
 This file contains the main content for the ScheduleKing App, an Alternative 
 Scheduling App which tells YOU when you will be meeting, whether you like
-it, or not."""
+it, or not.
+"""
 
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
