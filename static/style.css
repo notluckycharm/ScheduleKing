@@ -1,5 +1,5 @@
 body {
-    font-family: 'Georgia', sans-serif;
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
@@ -57,4 +57,19 @@ footer {
     position: fixed;
     bottom: 0;
     width: 100%;
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background-color: #3498db;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none; /* Remove default button border */
+    cursor: pointer;
+}
+
+.cta-button:hover {
+    background-color: #2980b9; /* Darker color on hover */
 }
