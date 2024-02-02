@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Free Time</title>
+  </head>
+  <body>
+    <h1>First Free Time Slot</h1>
+    {% if first_free_time_slot %}
+    <p>The first free time slot is: {{ first_free_time_slot }}</p>
+    {% else %}
+    <p>No free time slots found within the specified parameters.</p>
+    {% endif %}
+  </body>
+</html>
