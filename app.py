@@ -1,3 +1,9 @@
+"""
+This file contains the main content for the ScheduleKing App, an Alternative 
+Scheduling App which tells YOU when you will be meeting, whether you like
+it, or not.
+"""
+
 from flask import Flask, render_template, redirect, request, session
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
@@ -27,8 +33,8 @@ working_hours_end = datetime.strptime('17:00', '%H:%M').time()
 
 # Direct to input page
 @app.route('/')
-def index():
-    return render_template('index.html')
+def home():
+    return render_template('home.html')
 
 # Direct to authorization page
 @app.route('/authorize')
@@ -59,35 +65,11 @@ def callback():
     session['credentials'] = flow.credentials.to_json()
     return redirect('/find_time')
 
-# Check availability (unsure whether needed)
-@app.route('/check_availability')
-def check_availability():
-    credentials = Credentials.from_authorized_user_info(session['credentials'])
-    service = build('calendar', 'v3', credentials=credentials)
-
-    # Example: Check availability for the next 24 hours
-    now = datetime.datetime.utcnow()
-    end_time = now + datetime.timedelta(hours=24)
-
-    events_result = service.events().list(
-        calendarId='primary',
-        timeMin=now.isoformat() + 'Z',
-        timeMax=end_time.isoformat() + 'Z',
-        singleEvents=True,
-        orderBy='startTime'
-    ).execute()
-    
-    events = events_result.get('items', [])
-
-    # Process events and determine availability
-
-    return render_template('availability.html', events=events)
-
 # Function which uses API to find the first free time slot within constraints
 # Return None if there's no free time slot
-def find_first_free_time_slot(start,end,duration,dates):
+def find_first_free_time_slot(work_begin,work_end,mtg_duration,dates):
     # Convert duration to integer
-    duration = int(duration)
+    mtg_duration = int(mtg_duration)
 
     # Parse dates into a list
     dates_list = [date.strip() for date in dates.split(',')]
@@ -107,9 +89,9 @@ def find_first_free_time_slot(start,end,duration,dates):
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
         # Define start and end times for the date
-        start_time = datetime.combine(date, start)
-        end_time = datetime.combine(date, end)
-
+        start_time = datetime.combine(date, work_begin)
+        end_time = datetime.combine(date, work_end)
+        print("Hi!")
         try:
             # Make API call to list events
             events_result = service.events().list(
@@ -133,8 +115,8 @@ def find_first_free_time_slot(start,end,duration,dates):
 
         # Find the first available time slot within working hours
         current_time = start_time
-        while current_time + timedelta(minutes=duration) <= end_time:
-            slot_end_time = current_time + timedelta(minutes=duration)
+        while current_time + timedelta(minutes=mtg_duration) <= end_time:
+            slot_end_time = current_time + timedelta(minutes=mtg_duration)
             slot_free = True
 
             # Check if the time slot overlaps with any existing event
@@ -151,7 +133,7 @@ def find_first_free_time_slot(start,end,duration,dates):
                 return f"{current_time.strftime('%Y-%m-%d %H:%M')} - {slot_end_time.strftime('%H:%M')}"
 
             # Move to the next time slot
-            current_time += timedelta(minutes=duration)
+            current_time += timedelta(minutes=mtg_duration)
 
     # If no free time slot is found, return None
     return None
@@ -177,6 +159,30 @@ def find_time() :
     # Render the form page for user input
     return render_template('input_form.html')
 
+# TODO: Check availability
+@app.route('/check_availability')
+def check_availability():
+    credentials = Credentials.from_authorized_user_info(session['credentials'])
+    service = build('calendar', 'v3', credentials=credentials)
+
+    # Example: Check availability for the next 24 hours
+    now = datetime.datetime.utcnow()
+    end_time = now + datetime.timedelta(hours=24)
+
+    events_result = service.events().list(
+        calendarId='primary',
+        timeMin=now.isoformat() + 'Z',
+        timeMax=end_time.isoformat() + 'Z',
+        singleEvents=True,
+        orderBy='startTime'
+    ).execute()
+    
+    events = events_result.get('items', [])
+
+    # Process events and determine availability
+    return render_template('availability.html', events=events)
+
 if __name__ == '__main__':
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
+
 

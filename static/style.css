@@ -1,0 +1,75 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+}
+
+nav a {
+    text-decoration: none;
+    color: #555;
+    margin: 0 1em;
+}
+
+main {
+    padding: 2em;
+}
+
+.hero {
+    background-color: #f9f9f9;
+    padding: 2em;
+    text-align: center;
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background-color: #3498db;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.features {
+    margin-top: 2em;
+}
+
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1em;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background-color: #3498db;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none; /* Remove default button border */
+    cursor: pointer;
+}
+
+.cta-button:hover {
+    background-color: #2980b9; /* Darker color on hover */
+}
