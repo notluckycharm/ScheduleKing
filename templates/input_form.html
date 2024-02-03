@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Find Free Time</title>
+  </head>
+  <body>
+    <h1>Find Free Time</h1>
+    <form method="POST" action="/find_time">
+      <!-- 
+        TODO: Figure out how to do custom working hours
+        <label for="working-hours">Working Hours (HH:MM, comma-separated):</label
+      ><br />
+      <input
+        type="text"
+        id="working-hours"
+        name="duration"
+        required
+      /><br /><br />
+        !-->
+      <label for="duration">Duration of Time Slot (in minutes):</label><br />
+      <input type="text" id="duration" name="duration" required /><br /><br />
+
+      <label for="dates">Dates (YYYY-MM-DD, comma-separated):</label><br />
+      <input type="text" id="dates" name="dates" required /><br /><br />
+
+      <button type="submit">Find Free Time</button>
+    </form>
+  </body>
+</html>
