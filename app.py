@@ -182,6 +182,15 @@ def check_availability():
     # Process events and determine availability
     return render_template('availability.html', events=events)
 
+@app.route('/find_time+participant', methods=['POST'])
+def time_loading():
+    return render_template("loading.html")
+
+
+@app.route('/participant_login', methods=['GET', 'POST'])
+def participant_login():
+    return render_template("participant.html")
+
 if __name__ == '__main__':
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
 
