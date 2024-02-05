@@ -182,6 +182,25 @@ def check_availability():
     # Process events and determine availability
     return render_template('availability.html', events=events)
 
+# TODO
+@app.route('/host', methods=['GET', 'POST'])
+def host():
+    if request.method == 'POST':
+        # Process and handle the form data
+        # ... [Your form processing logic] ...
+        return redirect('/some_result_page')
+
+    return render_template('host_form.html')  # Render the host form
+
+@app.route('/invitee', methods=['GET', 'POST'])
+def invitee():
+    if request.method == 'POST':
+        # Process and handle the form data for invitee
+        # ... [Your form processing logic] ...
+        return redirect('/some_result_page')
+
+    return render_template('invitee_form.html')  # Render the invitee form
+
 if __name__ == '__main__':
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
 

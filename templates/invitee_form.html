@@ -1,27 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Create Meeting...</title>
+    <title>Accept a meeting invite</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
-    <!-- Include jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 </head>
 <body>
-    <div class="ui container">
-    <h2>Create Meeting...</h2>
+    <h2>Enter Your Information</h2>
     <form method="post">
-        <label for="duration">Duration:</label>
-        <select name="duration">
-            <option value="30">30 mins</option>
-            <option value="60">60 mins</option>
-            <option value="90">90 mins</option>
-            <option value="120">120 mins</option>
-            <option value="other">Other</option>
-        </select><br><br>
+        <label for="meeting_code">Meeting Code:</label><br>
+        <input type="text" id="meeting_code" name="meeting_code" pattern="\d{6}" required><br><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
 
         <label for="timezone">Time Zone:</label>
         <select name="timezone">
@@ -47,35 +38,13 @@
             <option value="Etc/GMT+10">(GMT+10:00) Eastern Australia, Guam</option>
             <option value="Etc/GMT+11">(GMT+11:00) Magadan, Solomon Islands</option>
             <option value="Etc/GMT+12">(GMT+12:00) Auckland, Wellington, Fiji</option>
-</select>
         </select><br><br>
 
-        <label for="description">Description:</label><br>
-        <textarea name="description" placeholder="Meeting for class project..."></textarea><br><br>
+        <label for="work_hours">Working Hours:</label><br>
+        From <input type="time" name="work_hours_start" required> 
+        to <input type="time" name="work_hours_end" required><br><br>
 
-        <label for="dates">Dates:</label><br>
-        <input type="text" id="datepicker" name="dates"><br><br>
-
-        <label for="lunch">Lunch Time (optional):</label><br>
-        <input type="time" name="lunch_start"> to <input type="time" name="lunch_end"><br><br>
-
-        <label for="working_hours">Working Hours:</label><br>
-        <input type="time" name="work_hours_start"> to <input type="time" name="work_hours_end"><br><br>
-
-        <label for="invitees">Estimated # of Invitees:</label><br>
-        <input type="number" id="invitees" name="invitees" min="1"><br><br>
-
-        <input type="submit" value="Create Meeting">
+        <input type="submit" value="Submit Information">
     </form>
-    </div>
-    <!-- Activate the DatePicker -->
-    <script>
-        $(document).ready(function(){
-            $("#datepicker").datepicker({
-                dateFormat: "yy-mm-dd" // we can change format
-            });
-        });
-        </script>
-        
 </body>
 </html>
