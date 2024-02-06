@@ -6,6 +6,8 @@ it, or not.
 
 from flask import Flask, render_template, redirect, request, session
 from flask_sqlalchemy import SQLAlchemy
+import string
+import random
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
@@ -14,6 +16,8 @@ import os
 import json
 from datetime import datetime, timedelta
 
+# List of active meetings
+meetings = []
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
@@ -23,7 +27,7 @@ db = SQLAlchemy(app)
 
 class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(db.Integer)
+    meeting_id = db.Column(db.String)
     time = db.Column(db.DateTime)
     attendees = db.Column(db.Integer)
 
@@ -41,6 +45,17 @@ CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6
 # Define working hours (based on user input from HTML form)
 working_hours_start = datetime.strptime('09:00', '%H:%M').time()
 working_hours_end = datetime.strptime('17:00', '%H:%M').time()
+
+# Generates random meeting code
+def generate_meeting_code(length=8):
+    # Define the pool of characters
+    characters = string.ascii_letters + string.digits
+
+    # Generate a random meeting code
+    meeting_code = ''.join(random.choice(characters) for _ in range(length))
+    
+    return meeting_code
+
 
 # Direct to input page
 @app.route('/')
@@ -155,7 +170,9 @@ def find_time() :
         # Get user input from the form
         duration = request.form.get('duration')
         dates = request.form.get('dates')
+        partnum = request.form.get('partnum')
 
+        meetingno = generate_meeting_code()
         # Process user input and find the first free time slot
         first_free_time_slot = find_first_free_time_slot(
             working_hours_start, 
@@ -165,7 +182,7 @@ def find_time() :
         )
 
         # Render the results page with the first free time slot
-        return render_template('free_time.html', first_free_time_slot=first_free_time_slot)
+        return render_template('free_time.html', first_free_time_slot=first_free_time_slot, meetingno=meetingno)
 
     # Render the form page for user input
     return render_template('input_form.html')
@@ -202,6 +219,10 @@ def time_loading():
 @app.route('/participant_login', methods=['GET', 'POST'])
 def participant_login():
     return render_template("participant.html")
+
+@app.route('/incompatible-time')
+def cantmakeit():
+    return render_template("cantmakeit.html")
 
 if __name__ == '__main__':
     with app.app_context():
