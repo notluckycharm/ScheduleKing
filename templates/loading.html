@@ -5,21 +5,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loading...</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../static/style.css">
 </head>
 
 <body>
+    <header>
+        <h1>ScheduleKing</h1>
+        <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/authorize">Get Started</a></li>
+          </ul>
+        </nav>
+      </header>
     <main>
         <section class="hero">
             <div class="loading-container">
                 <h2>Not all of your teammates have responded. Check back later.</h2>
+
+                <p id="participantCount"> {{ participants.num }} out of {{ participants.tot }} have filled out their calendar availability!</p>
             </div>
         </section>
     </main>
+    <script type="text/javascript">
+        var participantNum = '{{ participants.num }}'
+        var participantTotal = '{{ participants.tot }}'
+    </script>
     <script>
-        setTimeout(function () {
-            window.location.href = "/result"; 
-        }, 15000); // Adjust the delay time as needed
+        function updateParticipantCount() {
+                    participantNum++;
+                    document.getElementById('participantCount').innerText = participantNum + " out of " + totalCount + " have filled out their calendar availability!";
+                    if (participantNum >= 4) {
+                        clearInterval(intervalId);
+                    }
+                }
+
+                var intervalId = setInterval(updateParticipantCount, 1000);
     </script>
 </body>
 

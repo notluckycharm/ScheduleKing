@@ -5,6 +5,7 @@ it, or not.
 """
 
 from flask import Flask, render_template, redirect, request, session
+from flask_sqlalchemy import SQLAlchemy
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
@@ -16,6 +17,16 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class Meeting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.Integer)
+    time = db.Column(db.DateTime)
+    attendees = db.Column(db.Integer)
+
 # Google Calendar API Scope
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
     'https://www.googleapis.com/auth/calendar.events.freebusy',
@@ -25,7 +36,7 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
     'https://www.googleapis.com/auth/calendar.events.owned']
 
 # Path to the client secret JSON file downloaded from the Google Cloud Console
-CLIENT_SECRET_FILE = '/Users/saintcyrs/Downloads/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com.json'
+CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com.json'
 
 # Define working hours (based on user input from HTML form)
 working_hours_start = datetime.strptime('09:00', '%H:%M').time()
@@ -184,7 +195,8 @@ def check_availability():
 
 @app.route('/find_time+participant', methods=['POST'])
 def time_loading():
-    return render_template("loading.html")
+    participants = {'num': 1, 'tot' : 6}
+    return render_template("loading.html", participants=participants)
 
 
 @app.route('/participant_login', methods=['GET', 'POST'])
@@ -192,6 +204,8 @@ def participant_login():
     return render_template("participant.html")
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
 
 
