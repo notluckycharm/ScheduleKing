@@ -28,7 +28,7 @@ db = SQLAlchemy(app)
 class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     meeting_id = db.Column(db.String)
-    time = db.Column(db.DateTime)
+    time = db.Column(db.String)
     attendees = db.Column(db.Integer)
 
 # Google Calendar API Scope
@@ -117,7 +117,6 @@ def find_first_free_time_slot(work_begin,work_end,mtg_duration,dates):
         # Define start and end times for the date
         start_time = datetime.combine(date, work_begin)
         end_time = datetime.combine(date, work_end)
-        print("Hi!")
         try:
             # Make API call to list events
             events_result = service.events().list(
@@ -180,9 +179,11 @@ def find_time() :
             duration, 
             dates
         )
-
+        new_meeting = Meeting(meeting_id = meetingno, time = first_free_time_slot, attendees=int(partnum))
+        db.session.add(new_meeting)
+        db.session.commit()
         # Render the results page with the first free time slot
-        return render_template('free_time.html', first_free_time_slot=first_free_time_slot, meetingno=meetingno)
+        return render_template('free_time.html', first_free_time_slot=first_free_time_slot, meetingno=meetingno, partnum=partnum)
 
     # Render the form page for user input
     return render_template('input_form.html')

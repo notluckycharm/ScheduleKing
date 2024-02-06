@@ -6,15 +6,46 @@
     <title>Free Time</title>
   </head>
   <body>
-    <h1>First Free Time Slot</h1>
-    {% if first_free_time_slot %}
-    <p>The first free time slot is: {{ first_free_time_slot }}</p><br />
-    <p>Check you calendar and make sure that time works for you</p>
-    <p>Can you make this meeting time?</p>
-    <button>Yes</button> <button>If I Have To</button> <form action="/incompatible-time"><button>No</button>
-    </form>
-    {% else %}
-    <p>No free time slots found within the specified parameters.</p>
-    {% endif %}
+    <div id="Timeslot" style="display: none;">
+      <h1>First Free Time Slot</h1>
+      {% if first_free_time_slot %}
+      <p>The first free time slot is: {{ first_free_time_slot }}</p><br />
+      <p>Check you calendar and make sure that time works for you</p>
+      <p>Can you make this meeting time?</p>
+      <button>Yes</button>
+      <button>If I Have To</button> 
+      <input
+          type="button"
+          onclick="location.href='/incompatible-time';"
+          value="No"
+        />
+      {% else %}
+      <p>No free time slots found within the specified parameters.</p>
+      {% endif %}
+  </div>
+  <div id="default">
+    <h1>Your meeting code is {{ meetingno }}</h1>
+    <p>Please send this code to your invitees. Once enough people have connected their calendars to Schedule King, Schedule King will automatically find the best time for your team</p>
+    <p id="participantCount">0 out of {{ partnum }} participants have filled out their calendar availability!</p>
+  </div>
+  <script type="text/javascript">
+    var participantNum = 0;
+    var participantTotal = 6;
+    var targetCount = Math.ceil(participantTotal * 2 / 3);
+    var intervalId;
+
+    function updateParticipantCount() {
+        participantNum++;
+        document.getElementById('participantCount').innerText = participantNum + " out of " + participantTotal + " participants have filled out their calendar availability!";
+        if (participantNum >= targetCount) {
+            clearInterval(intervalId);
+            document.getElementById("Timeslot").style.display = "block";
+            document.getElementById("default").style.display = "none";
+
+        }
+    }
+
+    intervalId = setInterval(updateParticipantCount, 1000); // Update every 10000 ticks
+</script>
   </body>
 </html>
