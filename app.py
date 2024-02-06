@@ -25,8 +25,7 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
     'https://www.googleapis.com/auth/calendar.events.owned']
 
 # Path to the client secret JSON file downloaded from the Google Cloud Console
-CLIENT_SECRET_FILE = '/Users/saintcyrs/Downloads/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com.json'
-
+CLIENT_SECRET_FILE = '/Users/dannilai/Desktop/CS178/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com.json'
 # Define working hours (based on user input from HTML form)
 working_hours_start = datetime.strptime('09:00', '%H:%M').time()
 working_hours_end = datetime.strptime('17:00', '%H:%M').time()
@@ -43,6 +42,7 @@ def authorize():
         CLIENT_SECRET_FILE, 
         scopes=SCOPES,
         redirect_uri='https://127.0.0.1:5000/callback'
+
     )
     authorization_url, state = flow.authorization_url(
         access_type='offline',
@@ -181,6 +181,25 @@ def check_availability():
 
     # Process events and determine availability
     return render_template('availability.html', events=events)
+
+# TODO
+@app.route('/host', methods=['GET', 'POST'])
+def host():
+    if request.method == 'POST':
+        # Process and handle the form data
+        # ... [Your form processing logic] ...
+        return redirect('/some_result_page')
+
+    return render_template('host_form.html')  # Render the host form
+
+@app.route('/invitee', methods=['GET', 'POST'])
+def invitee():
+    if request.method == 'POST':
+        # Process and handle the form data for invitee
+        # ... [Your form processing logic] ...
+        return redirect('/some_result_page')
+
+    return render_template('invitee_form.html')  # Render the invitee form
 
 if __name__ == '__main__':
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)

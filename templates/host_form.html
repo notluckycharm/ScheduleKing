@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Meeting...</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery-ui-multidatespicker/jquery-ui.multidatespicker.js"></script>
+</head>
+<body>
+    <div class="ui container" style="margin-top: 50px;">
+        <h2 class="ui center aligned header">Create Meeting...</h2>
+        <form class="ui form" method="post">
+            <div class="ui grid">
+                <div class="eight wide column">
+                    <div class="field">
+                        <label for="duration">Duration:</label>
+                        <select name="duration" id="durationSelect" class="ui fluid dropdown">
+                            <option value="30">30 mins</option>
+                            <option value="60">60 mins</option>
+                            <option value="90">90 mins</option>
+                            <option value="120">120 mins</option>
+                            <option value="other">Other</option>
+                        </select><br><br>
+                    </div>
+                    <!-- Hidden -->
+                    <div class="field" id="customDuration" style="display: none;">
+                        <label for="custom_duration">Enter Duration (in minutes):</label>
+                        <input type="number" id="custom_duration" name="custom_duration" min="1">
+                    </div>
+        
+                    <div class="field">
+                        <label for="description">Description:</label>
+                        <textarea name="description" placeholder="Meeting for class project..."></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label for="dates">Dates:</label>
+                        <input type="text" id="datepicker" name="dates">
+                    </div>
+
+                </div>
+
+                <div class="eight wide column">
+                    <label for="timezone">Time Zone:</label>
+                    <select name="timezone">
+                        <!-- US Time Zones -->
+                        <option value="America/New_York">(UTC-05:00) Eastern Time (US & Canada)</option>
+                        <option value="America/Chicago">(UTC-06:00) Central Time (US & Canada)</option>
+                        <option value="America/Denver">(UTC-07:00) Mountain Time (US & Canada)</option>
+                        <option value="America/Los_Angeles">(UTC-08:00) Pacific Time (US & Canada)</option>
+                        <option value="America/Anchorage">(UTC-09:00) Alaska</option>
+                        <option value="Pacific/Honolulu">(UTC-10:00) Hawaii</option>
+        
+                        <!-- GMT Time Zones -->
+                        <option value="Etc/GMT+0">(GMT+0:00) Greenwich Mean Time</option>
+                        <option value="Etc/GMT+1">(GMT+1:00) Amsterdam, Berlin, Rome, Stockholm</option>
+                        <option value="Etc/GMT+2">(GMT+2:00) Athens, Helsinki, Jerusalem</option>
+                        <option value="Etc/GMT+3">(GMT+3:00) Moscow, Kuwait, Riyadh</option>
+                        <option value="Etc/GMT+4">(GMT+4:00) Abu Dhabi, Muscat, Baku</option>
+                        <option value="Etc/GMT+5">(GMT+5:00) Islamabad, Karachi, Tashkent</option>
+                        <option value="Etc/GMT+6">(GMT+6:00) Almaty, Dhaka, Colombo</option>
+                        <option value="Etc/GMT+7">(GMT+7:00) Bangkok, Hanoi, Jakarta</option>
+                        <option value="Etc/GMT+8">(GMT+8:00) Beijing, Singapore, Hong Kong</option>
+                        <option value="Etc/GMT+9">(GMT+9:00) Tokyo, Seoul, Osaka</option>
+                        <option value="Etc/GMT+10">(GMT+10:00) Eastern Australia, Guam</option>
+                        <option value="Etc/GMT+11">(GMT+11:00) Magadan, Solomon Islands</option>
+                        <option value="Etc/GMT+12">(GMT+12:00) Auckland, Wellington, Fiji</option>
+                    </select>
+                    </select><br><br>
+
+                    <div class="field">
+                        <label for="lunch">Lunch Time (optional):</label><br>
+                        <input type="time" name="lunch_start" style="width: 150px;"> to 
+                        <input type="time" name="lunch_end" style="width: 150px;"><br><br>
+                    </div>
+                    
+                    <div class="field">
+                        <label for="working_hours">Working Hours:</label><br>
+                        <input type="time" name="work_hours_start" style="width: 150px;"> to 
+                        <input type="time" name="work_hours_end" style="width: 150px;"><br><br>
+                    </div>
+                    <!-- <div class="field">
+                        <label for="lunch">Lunch Time (optional):</label><br>
+                        <input type="text" name="lunch_start" class="timepicker" style="width: 150px;"> to 
+                        <input type="text" name="lunch_end" class="timepicker" style="width: 150px;"><br><br>
+                    </div>
+                    
+                    <div class="field">
+                        <label for="working_hours">Working Hours:</label><br>
+                        <input type="text" name="work_hours_start" class="timepicker" style="width: 150px;"> to 
+                        <input type="text" name="work_hours_end" class="timepicker" style="width: 150px;"><br><br>
+                    </div> -->
+                    
+        
+                    <label for="invitees">Estimated # of Invitees:</label><br>
+                    <input type="number" id="invitees" name="invitees" min="1"><br><br>
+                </div>
+
+            <button class="ui blue button center" type="submit">Create Meeting</button>
+        </form>
+    </div>
+    <!-- Activate the DatePicker and TimePicker -->
+    <script>
+        $(document).ready(function(){
+            $('#datepicker').multiDatesPicker({
+                dateFormat: "yy-mm-dd",
+                numberOfMonths: 2,
+                minDate: 0, // this ensures you can't select dates in the past
+            });
+            // Handle duration selection
+            $('#durationSelect').change(function() {
+                if ($(this).val() === 'other') {
+                    $('#customDuration').show();
+                } else {
+                    $('#customDuration').hide();
+                }
+            });
+
+            // // TimePicker with 10-minute increments
+            // $('.timepicker').timepicker({
+            //     timeFormat: 'h:mm p',
+            //     interval: 10,  // 10 minutes
+            //     minTime: '6',
+            //     maxTime: '10:00pm',
+            //     defaultTime: '8',
+            //     startTime: '6:00',
+            //     dynamic: false,
+            //     dropdown: true,
+            //     scrollbar: true
+            // });
+        });
+    </script>
+</body>
+</html>
