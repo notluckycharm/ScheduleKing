@@ -71,7 +71,7 @@ def callback():
     if user_role == 'host':
         return redirect('/host')
     elif user_role == 'invitee':
-        return redirect('/invitee')
+        return redirect('invitee')
     else:
         return redirect('/error') # Redirect to an error page or a default route
 
@@ -90,18 +90,7 @@ def host():
         session['meeting_code'] = meeting_code
         return redirect('/meeting_created')
 
-    return render_template('host_form.html')
-
-
-# Generates random meeting code
-def generate_meeting_code(length=8):
-    # Define the pool of characters
-    characters = string.ascii_letters + string.digits
-
-    # Generate a random meeting code
-    meeting_code = ''.join(random.choice(characters) for _ in range(length))
-    
-    return meeting_code
+        # return render_template('available_slots.html', slots=available_slots)
 
 @app.route('/meeting_created')
 def meeting_created():
