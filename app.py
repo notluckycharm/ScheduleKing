@@ -75,54 +75,52 @@ def callback():
     else:
         return redirect('/error') # Redirect to an error page or a default route
 
-# TODO
+# two functions below with the help of ChatGPT
 @app.route('/host', methods=['GET', 'POST'])
 def host():
     if request.method == 'POST':
-        # Process and handle the form data
-        # ... [Your form processing logic] ...
-        return redirect('/some_result_page')
+        duration = request.form.get('duration')
+        dates = request.form.get('dates')
+        work_hours_start = request.form.get('work_hours_start')
+        work_hours_end = request.form.get('work_hours_end')
+        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
+        return render_template('available_slots.html', slots=available_slots)
 
-    return render_template('host_form.html')  # Render the host form
+    return render_template('host_form.html')
 
 @app.route('/invitee', methods=['GET', 'POST'])
 def invitee():
     if request.method == 'POST':
-        # Process and handle the form data for invitee
-        # ... [Your form processing logic] ...
-        return redirect('/some_result_page')
-
-    return render_template('invitee_form.html')  # Render the invitee form
+        # Similar logic as in the host route
+        duration = request.form.get('duration')
+        dates = request.form.get('dates')
+        work_hours_start = request.form.get('work_hours_start')
+        work_hours_end = request.form.get('work_hours_end')
+        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
+    return render_template('invitee_form.html')
 
 # Function which uses API to find the first free time slot within constraints
 # Return None if there's no free time slot
-def find_first_free_time_slot(work_begin,work_end,mtg_duration,dates):
-    # Convert duration to integer
-    mtg_duration = int(mtg_duration)
-
-    # Parse dates into a list
+def find_available_time_slots(duration, dates, work_hours_start, work_hours_end):
+    mtg_duration = int(duration)
     dates_list = [date.strip() for date in dates.split(',')]
+    
+    # Convert working hours to datetime.time
+    work_begin = datetime.strptime(work_hours_start, '%H:%M').time()
+    work_end = datetime.strptime(work_hours_end, '%H:%M').time()
 
-    # Initialize Google Calendar API credentials (you may need to adjust this based on your setup)
-    # Deserialize the JSON string stored in session['credentials']
     credentials_data = json.loads(session['credentials'])
-
-    # Create credentials object from the deserialized data
     credentials = Credentials.from_authorized_user_info(credentials_data)
     service = build('calendar', 'v3', credentials=credentials)
 
-    events = []
-    # Iterate through each date
-    for date_str in dates_list:
-        # Parse date string to datetime object
-        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    available_slots = []
 
-        # Define start and end times for the date
+    for date_str in dates_list:
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
         start_time = datetime.combine(date, work_begin)
         end_time = datetime.combine(date, work_end)
-        print("Hi!")
+
         try:
-            # Make API call to list events
             events_result = service.events().list(
                 calendarId='primary',
                 timeMin=start_time.isoformat(),
@@ -130,42 +128,29 @@ def find_first_free_time_slot(work_begin,work_end,mtg_duration,dates):
                 singleEvents=True,
                 orderBy='startTime'
             ).execute()
-
-            # Print the response to inspect its structure and content
-            print("EVENTS", events_result)
-
-            # Process API response
             events = events_result.get('items', [])
-
         except Exception as e:
-            # Handle the exception
             print(f"An error occurred: {e}")
+            continue
 
-
-        # Find the first available time slot within working hours
         current_time = start_time
         while current_time + timedelta(minutes=mtg_duration) <= end_time:
             slot_end_time = current_time + timedelta(minutes=mtg_duration)
             slot_free = True
 
-            # Check if the time slot overlaps with any existing event
             for event in events:
                 event_start = datetime.fromisoformat(event['start']['dateTime'])
                 event_end = datetime.fromisoformat(event['end']['dateTime'])
-
                 if (event_start < slot_end_time and event_end > current_time):
                     slot_free = False
                     break
-            
-            # If the time slot is free, return it
-            if slot_free:
-                return f"{current_time.strftime('%Y-%m-%d %H:%M')} - {slot_end_time.strftime('%H:%M')}"
 
-            # Move to the next time slot
+            if slot_free:
+                available_slots.append(f"{current_time.strftime('%Y-%m-%d %H:%M')} - {slot_end_time.strftime('%H:%M')}")
+            
             current_time += timedelta(minutes=mtg_duration)
 
-    # If no free time slot is found, return None
-    return None
+    return available_slots
 
 @app.route('/find_time', methods=['GET','POST'])
 def find_time() :
