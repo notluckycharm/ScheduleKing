@@ -103,7 +103,7 @@ def generate_meeting_code(length=8):
     
     return meeting_code
 
-@app.route('/meeting_created')
+@app.route('/meeting_created', methods=['GET', 'POST'])
 def meeting_created():
     meeting_code = session.get('meeting_code')
     if not meeting_code:
@@ -243,6 +243,7 @@ def check_availability():
     # Process events and determine availability
     return render_template('availability.html', events=events)
 """
+
 if __name__ == '__main__':
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
 
