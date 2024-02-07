@@ -144,7 +144,8 @@ def find_time() :
         # Get user input from the form
         duration = request.form.get('duration')
         dates = request.form.get('dates')
-
+        print(f"duration: {duration}")
+        print(f"dates: {dates}")
         # Process user input and find the first free time slot
         first_free_time_slot = find_first_free_time_slot(
             working_hours_start, 
@@ -157,7 +158,7 @@ def find_time() :
         return render_template('free_time.html', first_free_time_slot=first_free_time_slot)
 
     # Render the form page for user input
-    return render_template('input_form.html')
+    return render_template('host_form.html')
 
 # TODO: Check availability
 @app.route('/check_availability')
@@ -182,15 +183,6 @@ def check_availability():
     # Process events and determine availability
     return render_template('availability.html', events=events)
 
-# TODO
-@app.route('/host', methods=['GET', 'POST'])
-def host():
-    if request.method == 'POST':
-        # Process and handle the form data
-        # ... [Your form processing logic] ...
-        return redirect('/some_result_page')
-
-    return render_template('host_form.html')  # Render the host form
 
 @app.route('/invitee', methods=['GET', 'POST'])
 def invitee():
