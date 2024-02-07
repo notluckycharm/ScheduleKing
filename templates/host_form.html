@@ -10,13 +10,25 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
+    <link rel="stylesheet" href="/../static/style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery-ui-multidatespicker/jquery-ui.multidatespicker.js"></script>
 </head>
 <body>
+    <header>
+        <h1>ScheduleKing</h1>
+        <nav>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Get Started</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
     <div class="ui container" style="margin-top: 50px;">
         <h2 class="ui center aligned header">Create Meeting...</h2>
-        <form class="ui form" method="post" action="/find_time">
+        <form class="ui form" method="post" action="/host">
             <div class="ui grid">
                 <div class="eight wide column">
                     <div class="field">

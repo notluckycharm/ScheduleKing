@@ -27,7 +27,6 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
 
 # Path to the client secret JSON file downloaded from the Google Cloud Console
 CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com (1).json'
-API_KEY = 'AIzaSyDjCrRmfsOuV1gD6ka3Sp1Xo01FqXu2iRE'
 
 # Direct to input page
 @app.route('/')
@@ -72,7 +71,7 @@ def callback():
     if user_role == 'host':
         return redirect('/host')
     elif user_role == 'invitee':
-        return redirect('/invitee')
+        return redirect('invitee')
     else:
         return redirect('/error') # Redirect to an error page or a default route
 
@@ -91,20 +90,9 @@ def host():
         session['meeting_code'] = meeting_code
         return redirect('/meeting_created')
 
-    return render_template('host_form.html')
+        # return render_template('available_slots.html', slots=available_slots)
 
-
-# Generates random meeting code
-def generate_meeting_code(length=8):
-    # Define the pool of characters
-    characters = string.ascii_letters + string.digits
-
-    # Generate a random meeting code
-    meeting_code = ''.join(random.choice(characters) for _ in range(length))
-    
-    return meeting_code
-
-@app.route('/meeting_created', methods=['GET', 'POST'])
+@app.route('/meeting_created')
 def meeting_created():
     meeting_code = session.get('meeting_code')
     if not meeting_code:
@@ -140,18 +128,17 @@ def generate_meeting_code(length=8):
 def find_available_time_slots(duration, dates, work_hours_start, work_hours_end):
     mtg_duration = int(duration)
     dates_list = [date.strip() for date in dates.split(',')]
-    # Retrieve the selected timezone from the form data
-    selected_offset = request.form.get('timezone')
     
     work_hours_start = datetime.strptime(request.form.get('work_hours_start'), '%H:%M').time()
     work_hours_end = datetime.strptime(request.form.get('work_hours_end'), '%H:%M').time()
 
     try:
         credentials_data = json.loads(session['credentials'])
+        print("CREDENTIALS DATA:", credentials_data)
         credentials = Credentials.from_authorized_user_info(credentials_data)
-        service = build('calendar', 'v3', credentials=credentials, developerKey=API_KEY)
+        service = build('calendar', 'v3', credentials=credentials)
 
-    # Handle credentials errors
+    # Continue with your code logic that requires the credentials...
     except KeyError:
         print("Session credentials not found.")
     except Exception as e:
@@ -164,11 +151,12 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         start_time = datetime.combine(date, work_hours_start)
         end_time = datetime.combine(date, work_hours_end)
+
         try:
             events_result = service.events().list(
                 calendarId='primary',
-                timeMin=start_time.isoformat()+selected_offset,
-                timeMax=end_time.isoformat()+selected_offset,
+                timeMin=start_time.isoformat(),
+                timeMax=end_time.isoformat(),
                 singleEvents=True,
                 orderBy='startTime'
             ).execute()
@@ -244,7 +232,6 @@ def check_availability():
     # Process events and determine availability
     return render_template('availability.html', events=events)
 """
-
 if __name__ == '__main__':
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
 

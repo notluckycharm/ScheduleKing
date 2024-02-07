@@ -1,3 +1,4 @@
+/* StyleSheet Generated with help from ChatGPT */
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -78,4 +79,11 @@ footer {
     display: flex;
     justify-content: center;
     gap: 30px; /* Adjusted space between buttons */
+}
+
+.meeting-code {
+    font-size: 2em; /* Large font size */
+    font-weight: bold; /* Bold font */
+    color: #333; /* Optional: Darker font color for better readability */
+    margin-top: 50px; /* Adds some space above the code */
 }

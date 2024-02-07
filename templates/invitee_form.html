@@ -2,16 +2,28 @@
 <html>
 <head>
     <title>Accept a Meeting Invite</title>
+    <link rel="stylesheet" href="/../static/style.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 </head>
 <body>
+    <header>
+        <h1>ScheduleKing</h1>
+        <nav>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Get Started</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
     <div class="ui container" style="margin-top: 50px;">
         <h2 class="ui center aligned header">Enter Your Information</h2>
         <form class="ui form" method="post">
             <div class="field">
                 <label for="meeting_code">Meeting Code:</label>
-                <input type="text" id="meeting_code" name="meeting_code" pattern="\d{6}" required>
+                <input type="text" id="meeting_code" name="meeting_code" pattern="[A-Za-z0-9]{6}" required>
             </div>
 
             <div class="field">
