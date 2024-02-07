@@ -22,15 +22,25 @@
 
     <main>
       <section class="hero">
-        <h2>Welcome to ScheduleKing</h2>
-        <p>Your solution for easy and stress-free scheduling.</p>
-        <input
-          type="button"
-          onclick="location.href='/authorize';"
-          value="Get Started"
-          class="cta-button"
-        />
-        <p id="meetingtime" style="display: none"></p>
+          <h2>Welcome to ScheduleKing</h2>
+          <p>Your solution for easy and stress-free scheduling.</p>
+
+          <div class="button-group">
+              <input
+                type="button"
+                onclick="location.href='/authorize';"
+                value="Host Login"
+                class="cta-button"
+              />
+              <input
+                type="button"
+                onclick="location.href='/authorize';"
+                value="Invitee Login"
+                class="cta-button"
+              />
+          </div>
+
+          <p id="meetingtime" style="display: none"></p>
       </section>
       <section class="features">
         <h2>Key Features(Concepts)</h2>
