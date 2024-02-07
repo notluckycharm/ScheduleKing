@@ -83,7 +83,7 @@ def host():
         dates = request.form.get('dates')
         work_hours_start = request.form.get('work_hours_start')
         work_hours_end = request.form.get('work_hours_end')
-        # available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
+        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
 
         # Generate a 6-digit meeting code
         meeting_code = generate_meeting_code(6)
