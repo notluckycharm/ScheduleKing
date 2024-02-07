@@ -183,8 +183,10 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
             slot_free = True
 
             for event in events:
-                event_start = datetime.fromisoformat(event['start']['dateTime'])
-                event_end = datetime.fromisoformat(event['end']['dateTime'])
+                event_start = datetime.fromisoformat(event['start']['dateTime']).replace(selected_offset, '')
+                event_end = datetime.fromisoformat(event['end']['dateTime']).replace(selected_offset, '')
+                print("EVENT START", event_start)
+                print("SLOT END TIME", slot_end_time)
                 if (event_start < slot_end_time and event_end > current_time):
                     slot_free = False
                     break
