@@ -3,9 +3,11 @@ This file contains the main content for the ScheduleKing App, an Alternative
 Scheduling App which tells YOU when you will be meeting, whether you like
 it, or not.
 """
-import random
-import string
+
 from flask import Flask, render_template, redirect, request, session
+from flask_sqlalchemy import SQLAlchemy
+import string
+import random
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
@@ -14,8 +16,20 @@ import os
 import json
 from datetime import datetime, timedelta
 
+# List of active meetings
+meetings = []
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class Meeting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.String)
+    time = db.Column(db.String)
+    attendees = db.Column(db.Integer)
 
 # Google Calendar API Scope
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
@@ -26,7 +40,22 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
     'https://www.googleapis.com/auth/calendar.events.owned']
 
 # Path to the client secret JSON file downloaded from the Google Cloud Console
-CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com (1).json'
+CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com.json'
+
+# Define working hours (based on user input from HTML form)
+working_hours_start = datetime.strptime('09:00', '%H:%M').time()
+working_hours_end = datetime.strptime('17:00', '%H:%M').time()
+
+# Generates random meeting code
+def generate_meeting_code(length=8):
+    # Define the pool of characters
+    characters = string.ascii_letters + string.digits
+
+    # Generate a random meeting code
+    meeting_code = ''.join(random.choice(characters) for _ in range(length))
+    
+    return meeting_code
+
 
 # Direct to input page
 @app.route('/')
@@ -34,11 +63,8 @@ def home():
     return render_template('home.html')
 
 # Direct to authorization page
-@app.route('/authorize/<role>')
-def authorize(role):
-    # Save the role info for redirecting purpose
-    session['user_role'] = role
-
+@app.route('/authorize')
+def authorize():
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRET_FILE, 
         scopes=SCOPES,
@@ -49,15 +75,12 @@ def authorize(role):
         include_granted_scopes='true'
     )
     session['state'] = state
-    return redirect(authorization_url) 
+    return redirect(authorization_url)
 
 # Callback Google Calendar API
 @app.route('/callback')
 def callback():
-    state = session.get('state')
-    if not state:
-        # Handle the missing state case, perhaps redirect to an error page or log the issue
-        return redirect('/error')
+    state = session['state']
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRET_FILE,
         scopes=SCOPES,
@@ -66,104 +89,36 @@ def callback():
     )
     flow.fetch_token(authorization_response=request.url)
     session['credentials'] = flow.credentials.to_json()
-    # get role info and redirect
-    user_role = session.get('user_role')
-    if user_role == 'host':
-        return redirect('/host')
-    elif user_role == 'invitee':
-        return redirect('/invitee')
-    else:
-        return redirect('/error') # Redirect to an error page or a default route
+    return redirect('/find_time')
 
-@app.route('/host', methods=['GET', 'POST'])
-def host():
-    if request.method == 'POST':
-        # extract necessary info
-        duration = request.form.get('duration')
-        dates = request.form.get('dates')
-        work_hours_start = request.form.get('work_hours_start')
-        work_hours_end = request.form.get('work_hours_end')
-        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
-
-        # Generate a 6-digit meeting code
-        meeting_code = generate_meeting_code(6)
-        session['meeting_code'] = meeting_code
-        return redirect('/meeting_created')
-
-    return render_template('host_form.html')
-
-
-# Generates random meeting code
-def generate_meeting_code(length=8):
-    # Define the pool of characters
-    characters = string.ascii_letters + string.digits
-
-    # Generate a random meeting code
-    meeting_code = ''.join(random.choice(characters) for _ in range(length))
-    
-    return meeting_code
-
-@app.route('/meeting_created', methods=['GET', 'POST'])
-def meeting_created():
-    meeting_code = session.get('meeting_code')
-    if not meeting_code:
-        return redirect('/')  # Redirect if no meeting code is found
-
-    return render_template('meeting_created.html', meeting_code=meeting_code)
-
-    # return render_template('host_form.html')
-
-@app.route('/invitee', methods=['GET', 'POST'])
-def invitee():
-    if request.method == 'POST':
-        # Similar logic as in the host route
-        duration = request.form.get('duration')
-        dates = request.form.get('dates')
-        work_hours_start = request.form.get('work_hours_start')
-        work_hours_end = request.form.get('work_hours_end')
-        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
-    return render_template('invitee_form.html')
-
-# Generates random meeting code
-def generate_meeting_code(length=8):
-    # Define the pool of characters
-    characters = string.ascii_letters + string.digits
-
-    # Generate a random meeting code
-    meeting_code = ''.join(random.choice(characters) for _ in range(length))
-    
-    return meeting_code
-    
 # Function which uses API to find the first free time slot within constraints
 # Return None if there's no free time slot
-def find_available_time_slots(duration, dates, work_hours_start, work_hours_end):
-    mtg_duration = int(duration)
+def find_first_free_time_slot(work_begin,work_end,mtg_duration,dates):
+    # Convert duration to integer
+    mtg_duration = int(mtg_duration)
+
+    # Parse dates into a list
     dates_list = [date.strip() for date in dates.split(',')]
-    
-    work_hours_start = datetime.strptime(request.form.get('work_hours_start'), '%H:%M').time()
-    work_hours_end = datetime.strptime(request.form.get('work_hours_end'), '%H:%M').time()
 
-    try:
-        credentials_data = json.loads(session['credentials'])
-        print("CREDENTIALS DATA:", credentials_data)
-        credentials = Credentials.from_authorized_user_info(credentials_data)
-        service = build('calendar', 'v3', credentials=credentials)
+    # Initialize Google Calendar API credentials (you may need to adjust this based on your setup)
+    # Deserialize the JSON string stored in session['credentials']
+    credentials_data = json.loads(session['credentials'])
 
-    # Continue with your code logic that requires the credentials...
-    except KeyError:
-        print("Session credentials not found.")
-    except Exception as e:
-        print(f"An error occurred while accessing session credentials: {e}")
+    # Create credentials object from the deserialized data
+    credentials = Credentials.from_authorized_user_info(credentials_data)
+    service = build('calendar', 'v3', credentials=credentials)
 
-
-    available_slots = []
-
+    events = []
+    # Iterate through each date
     for date_str in dates_list:
+        # Parse date string to datetime object
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        start_time = datetime.combine(date, work_hours_start)
-        end_time = datetime.combine(date, work_hours_end)
 
+        # Define start and end times for the date
+        start_time = datetime.combine(date, work_begin)
+        end_time = datetime.combine(date, work_end)
         try:
+            # Make API call to list events
             events_result = service.events().list(
                 calendarId='primary',
                 timeMin=start_time.isoformat(),
@@ -171,55 +126,68 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
                 singleEvents=True,
                 orderBy='startTime'
             ).execute()
-            events = events_result.get('items', [])
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            continue
 
+            # Print the response to inspect its structure and content
+            print("EVENTS", events_result)
+
+            # Process API response
+            events = events_result.get('items', [])
+
+        except Exception as e:
+            # Handle the exception
+            print(f"An error occurred: {e}")
+
+
+        # Find the first available time slot within working hours
         current_time = start_time
         while current_time + timedelta(minutes=mtg_duration) <= end_time:
             slot_end_time = current_time + timedelta(minutes=mtg_duration)
             slot_free = True
 
+            # Check if the time slot overlaps with any existing event
             for event in events:
                 event_start = datetime.fromisoformat(event['start']['dateTime'])
                 event_end = datetime.fromisoformat(event['end']['dateTime'])
+
                 if (event_start < slot_end_time and event_end > current_time):
                     slot_free = False
                     break
-
-            if slot_free:
-                available_slots.append(f"{current_time.strftime('%Y-%m-%d %H:%M')} - {slot_end_time.strftime('%H:%M')}")
             
+            # If the time slot is free, return it
+            if slot_free:
+                return f"{current_time.strftime('%Y-%m-%d %H:%M')} - {slot_end_time.strftime('%H:%M')}"
+
+            # Move to the next time slot
             current_time += timedelta(minutes=mtg_duration)
 
-    return available_slots
+    # If no free time slot is found, return None
+    return None
 
 @app.route('/find_time', methods=['GET','POST'])
 def find_time() :
     if request.method == 'POST':
-        work_hours_start = request.form.get('work_hours_start')
-        work_hours_end = request.form.get('work_hours_end')
         # Get user input from the form
         duration = request.form.get('duration')
         dates = request.form.get('dates')
-        print(f"duration: {duration}")
-        print(f"dates: {dates}")
-        # Process user input and find the first free time slot
-        first_free_time_slot = find_available_time_slots(
-            duration,
-            dates,
-            work_hours_start, 
-            work_hours_end
-        )
+        partnum = request.form.get('partnum')
 
+        meetingno = generate_meeting_code()
+        # Process user input and find the first free time slot
+        first_free_time_slot = find_first_free_time_slot(
+            working_hours_start, 
+            working_hours_end, 
+            duration, 
+            dates
+        )
+        new_meeting = Meeting(meeting_id = meetingno, time = first_free_time_slot, attendees=int(partnum))
+        db.session.add(new_meeting)
+        db.session.commit()
         # Render the results page with the first free time slot
-        return render_template('free_time.html', first_free_time_slot=first_free_time_slot)
+        return render_template('free_time.html', first_free_time_slot=first_free_time_slot, meetingno=meetingno, partnum=partnum)
 
     # Render the form page for user input
-    return render_template('host_form.html')
+    return render_template('input_form.html')
 
-"""
 # TODO: Check availability
 @app.route('/check_availability')
 def check_availability():
@@ -242,9 +210,22 @@ def check_availability():
 
     # Process events and determine availability
     return render_template('availability.html', events=events)
-"""
+
+@app.route('/find_time+participant', methods=['POST'])
+def time_loading():
+    participants = {'num': 1, 'tot' : 6}
+    return render_template("loading.html", participants=participants)
+
+
+@app.route('/participant_login', methods=['GET', 'POST'])
+def participant_login():
+    return render_template("participant.html")
+
+@app.route('/incompatible-time')
+def cantmakeit():
+    return render_template("cantmakeit.html")
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
-
-
