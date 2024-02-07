@@ -34,7 +34,17 @@
   </style>
 </head>
 <body>
-    <div class="ui container centered-content" style="margin-top: 50px;">
+    <div class="ui container centered-content" style="margin-top: 50px; display:none" id="Timeslot">
+        <div class="ui segment">
+        <h1>
+            Your meeting has been scheduled for {{ available_slots }}
+        </h1>
+        <p>Does this time still work for you?</p>
+        <button>Yes</button>
+        <button>No</button>
+        </div>
+    </div>
+    <div class="ui container centered-content" style="margin-top: 50px;" id="default">
       <div class="ui segment">
           <div class="ui center aligned header code-description">Your meeting code is</div>
           <div class="ui center aligned header meeting-code" style="font-size: large; margin-bottom: 20px;">
@@ -72,11 +82,13 @@
                 "<strong>" + participantNum + "</strong> out of <strong>" + participantTotal + "</strong> participants have filled out their calendar availability!";
             if (participantNum >= targetCount) {
                 clearInterval(intervalId);
+                document.getElementById("Timeslot").style.display = "block";
+                document.getElementById("default").style.display = "none";
                 // Additional logic for displaying timeslots if needed
             }
         }
 
-        intervalId = setInterval(updateParticipantCount, 1000); // Update every 1000 milliseconds (1 second)
+        intervalId = setInterval(updateParticipantCount, 2000); // Update every 1000 milliseconds (1 second)
 
     </script>
 </body>
