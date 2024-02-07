@@ -100,7 +100,7 @@ def host():
         work_hours_end = request.form.get('work_hours_end')
         participantcount = request.form.get("invitees")
 
-        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)[0]
+        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
 
         # Generate a 6-digit meeting code
         meeting_code = generate_meeting_code(6)
@@ -163,7 +163,6 @@ def generate_meeting_code(length=8):
     
 # Function which uses API to find the first free time slot within constraints
 # Return None if there's no free time slot
-# TODO: Change to FREE/BUSY API call
 def find_available_time_slots(duration, dates, work_hours_start, work_hours_end):
     mtg_duration = int(duration)
     dates_list = [date.strip() for date in dates.split(',')]
@@ -172,7 +171,7 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
     
     work_hours_start = datetime.strptime(request.form.get('work_hours_start'), '%H:%M').time()
     work_hours_end = datetime.strptime(request.form.get('work_hours_end'), '%H:%M').time()
-
+    
     try:
         credentials_data = json.loads(session['credentials'])
         credentials = Credentials.from_authorized_user_info(credentials_data)
@@ -205,10 +204,6 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
             print(f"An error occurred: {e}")
             continue
 
-        # Define the timezone using the selected offset
-        #timezone = string_to_fixed_offset_timezone(selected_offset)
-        #print(timezone)
-
         current_time = string_to_datetime_with_timezone(start_time.isoformat() + selected_offset)
 
         # While the time we are on is within the work hours
@@ -234,9 +229,9 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
 
             # Move to the next time slot
             current_time += timedelta(minutes=mtg_duration)
-
-    print("AVAILABLE SLOTS", available_slots)
-    return available_slots
+    if available_slots == []:
+        available_slots.append("No available slots")
+    return available_slots[0]
 
 @app.route('/find_time', methods=['GET','POST'])
 def find_time() :
