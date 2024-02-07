@@ -36,8 +36,11 @@ def home():
     return render_template('home.html')
 
 # Direct to authorization page
-@app.route('/authorize')
-def authorize():
+@app.route('/authorize/<role>')
+def authorize(role):
+    # save the role info for redirecting purpose
+    session['user_role'] = role
+
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRET_FILE, 
         scopes=SCOPES,
@@ -63,7 +66,33 @@ def callback():
     )
     flow.fetch_token(authorization_response=request.url)
     session['credentials'] = flow.credentials.to_json()
-    return redirect('/find_time')
+    # get role info and redirect
+    user_role = session.get('user_role')
+    if user_role == 'host':
+        return redirect('/host')
+    elif user_role == 'invitee':
+        return redirect('invitee')
+    else:
+        return redirect('/error') # Redirect to an error page or a default route
+
+# TODO
+@app.route('/host', methods=['GET', 'POST'])
+def host():
+    if request.method == 'POST':
+        # Process and handle the form data
+        # ... [Your form processing logic] ...
+        return redirect('/some_result_page')
+
+    return render_template('host_form.html')  # Render the host form
+
+@app.route('/invitee', methods=['GET', 'POST'])
+def invitee():
+    if request.method == 'POST':
+        # Process and handle the form data for invitee
+        # ... [Your form processing logic] ...
+        return redirect('/some_result_page')
+
+    return render_template('invitee_form.html')  # Render the invitee form
 
 # Function which uses API to find the first free time slot within constraints
 # Return None if there's no free time slot
@@ -182,16 +211,6 @@ def check_availability():
 
     # Process events and determine availability
     return render_template('availability.html', events=events)
-
-
-@app.route('/invitee', methods=['GET', 'POST'])
-def invitee():
-    if request.method == 'POST':
-        # Process and handle the form data for invitee
-        # ... [Your form processing logic] ...
-        return redirect('/some_result_page')
-
-    return render_template('invitee_form.html')  # Render the invitee form
 
 if __name__ == '__main__':
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
