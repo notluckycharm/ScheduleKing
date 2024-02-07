@@ -1,34 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Free Time</title>
-  </head>
-  <body>
-  <div id="default">
-    <h1>Your meeting code is {{ meeting_code }}</h1>
-    <p>Please send this code to your invitees. Once enough people have connected their calendars to Schedule King, Schedule King will automatically find the best time for your team</p>
-    <p id="participantCount">0 out of {{ partnum }} participants have filled out their calendar availability!</p>
-  </div>
-  <script type="text/javascript">
-    var participantNum = 0;
-    var participantTotal = 6;
-    var targetCount = Math.ceil(participantTotal * 2 / 3);
-    var intervalId;
-
-    function updateParticipantCount() {
-        participantNum++;
-        document.getElementById('participantCount').innerText = participantNum + " out of " + participantTotal + " participants have filled out their calendar availability!";
-        if (participantNum >= targetCount) {
-            clearInterval(intervalId);
-            document.getElementById("Timeslot").style.display = "block";
-            document.getElementById("default").style.display = "none";
-
-        }
+    <title>Meeting Created</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+    header {
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 1em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
 
-    intervalId = setInterval(updateParticipantCount, 5000); // Update every 10000 ticks
-</script>
-  </body>
+        nav a {
+            text-decoration: none;
+            color: #555;
+            margin: 0 1em;
+        }
+      body, html {
+          height: 100%;
+          margin: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-family: Arial, sans-serif;
+      }
+      .centered-content {
+          text-align: center;
+      }
+      .meeting-code {
+          font-size: 3em; /* Large font size for the meeting code */
+          margin: 0.5em 0; /* Spacing around the meeting code */
+      }
+      .description {
+          font-size: 1.5em; /* Larger font size for the description */
+      }
+      .copy-icon {
+          cursor: pointer;
+          color: rgb(66, 117, 211); /* Change to your desired color */
+      }
+
+  </style>
+</head>
+<body>
+    <header>
+    <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/">Get Started</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+    </header><br />
+    <main>
+    <div class="ui container centered-content" style="margin-top: 50px; display:none" id="Timeslot">
+        <div class="ui segment">
+        <h1>
+            Your meeting has been scheduled for {{ available_slots }}
+        </h1>
+        <p>Does this time still work for you?</p>
+        <button>Yes</button>
+        <button>No</button>
+        </div>
+    </div>
+    <div class="ui container centered-content" style="margin-top: 50px;" id="default">
+      <div class="ui segment">
+          <div class="ui center aligned header code-description">Your meeting code is</div>
+          <div class="ui center aligned header meeting-code" style="font-size: large; margin-bottom: 20px;">
+              {{ meeting_code }}
+              <i class="fas fa-copy copy-icon" onclick="copyToClipboard()"></i>
+          </div>
+          <p>Please send this code to your invitees. Once enough people have connected their calendars to Schedule King, Schedule King will automatically find the best time for your team.</p>
+          <p id="participantCount" class="ui center aligned">0 out of {{ participantcount }} participants have filled out their calendar availability!</p>
+      </div>
+    </div>
+    </main> 
+    <script type="text/javascript">
+        var participantNum = 0;
+        var participantTotal = "{{ participantcount }}";
+        var targetCount = Math.ceil(participantTotal * 2 / 3);
+        var intervalId;
+        // used GPT for copying function
+        function copyToClipboard() {
+            // Target the first child node (text node) of the .meeting-code div
+            var textNode = document.querySelector('.meeting-code').childNodes[0];
+            var text = textNode.textContent.trim(); // Trim to remove any extra spaces
+
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Meeting code copied to clipboard');
+                // Optionally, show a confirmation to the user
+            })
+            .catch(function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+
+        function updateParticipantCount() {
+            participantNum++;
+            document.getElementById('participantCount').innerHTML = 
+                "<strong>" + participantNum + "</strong> out of <strong>" + participantTotal + "</strong> participants have filled out their calendar availability!";
+            if (participantNum >= targetCount) {
+                clearInterval(intervalId);
+                document.getElementById("Timeslot").style.display = "block";
+                document.getElementById("default").style.display = "none";
+                // Additional logic for displaying timeslots if needed
+            }
+        }
+
+        intervalId = setInterval(updateParticipantCount, 2000); // Update every 1000 milliseconds (1 second)
+
+    </script>
+</body>
 </html>
+

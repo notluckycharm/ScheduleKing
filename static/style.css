@@ -87,3 +87,14 @@ footer {
     color: #333; /* Optional: Darker font color for better readability */
     margin-top: 50px; /* Adds some space above the code */
 }
+
+.centered-content {
+    text-align: center;
+}
+.meeting-code {
+    font-size: 3em; /* Large font size for the meeting code */
+    margin: 0.5em 0; /* Spacing around the meeting code */
+}
+.description {
+    font-size: 1.5em; /* Larger font size for the description */
+}

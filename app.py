@@ -5,17 +5,24 @@ it, or not.
 """
 import random
 import string
-from flask import Flask, render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request, session, flash
+from flask_sqlalchemy import SQLAlchemy
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 import os
 import json
+import pytz
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+# From Flask Todo App Tutorial
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 # Google Calendar API Scope
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
@@ -28,6 +35,13 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
 # Path to the client secret JSON file downloaded from the Google Cloud Console
 CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com (1).json'
 API_KEY = 'AIzaSyDjCrRmfsOuV1gD6ka3Sp1Xo01FqXu2iRE'
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    meetingid = db.Column(db.String)
+    duration = db.Column(db.Integer)
+    dates = db.Column(db.String)
+    count = db.Column(db.Integer)
 
 # Direct to input page
 @app.route('/')
@@ -84,13 +98,21 @@ def host():
         dates = request.form.get('dates')
         work_hours_start = request.form.get('work_hours_start')
         work_hours_end = request.form.get('work_hours_end')
+        participantcount = request.form.get("invitees")
         available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
 
         # Generate a 6-digit meeting code
         meeting_code = generate_meeting_code(6)
         session['meeting_code'] = meeting_code
-        return redirect('/meeting_created')
-
+        event = Event(meetingid=meeting_code, duration=int(duration), dates=dates, count=participantcount)
+        db.session.add(event)
+        db.session.commit()
+        if not meeting_code:    
+            flash("Meeting Invalid, Please try again")
+            session.clear()
+            return redirect("/")
+        else:
+            return render_template("meeting_created.html", available_slots=available_slots, meeting_code=meeting_code, participantcount=participantcount)
     return render_template('host_form.html')
 
 
@@ -109,8 +131,7 @@ def meeting_created():
     meeting_code = session.get('meeting_code')
     if not meeting_code:
         return redirect('/')  # Redirect if no meeting code is found
-
-    return render_template('meeting_created.html', meeting_code=meeting_code)
+    return render_template('meeting_created.html', meeting_code=meeting_code,)
 
     # return render_template('host_form.html')
 
@@ -118,11 +139,15 @@ def meeting_created():
 def invitee():
     if request.method == 'POST':
         # Similar logic as in the host route
-        duration = request.form.get('duration')
-        dates = request.form.get('dates')
+        meeting_code = request.form.get('meeting_code')
+        event = Event.query.filter_by(meetingid=meeting_code).first()
+        duration = event.duration
+        dates = event.dates
+        count = event.count
         work_hours_start = request.form.get('work_hours_start')
         work_hours_end = request.form.get('work_hours_end')
         available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
+        return render_template("loading.html", available_slots=available_slots, participantcount=count)
     return render_template('invitee_form.html')
 
 # Generates random meeting code
@@ -160,6 +185,7 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
 
     available_slots = []
 
+    # TODO: Make this work for all dates in between the start and end date
     for date_str in dates_list:
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         start_time = datetime.combine(date, work_hours_start)
@@ -173,6 +199,7 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
                 orderBy='startTime'
             ).execute()
             events = events_result.get('items', [])
+            print(events)
         except Exception as e:
             print(f"An error occurred: {e}")
             continue
@@ -180,11 +207,20 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
         current_time = start_time
         while current_time + timedelta(minutes=mtg_duration) <= end_time:
             slot_end_time = current_time + timedelta(minutes=mtg_duration)
+            # TODO: Use Google Calendar API to check whether event time is free/busy
             slot_free = True
 
             for event in events:
-                event_start = datetime.fromisoformat(event['start']['dateTime']).replace(selected_offset, '')
-                event_end = datetime.fromisoformat(event['end']['dateTime']).replace(selected_offset, '')
+                event_start = datetime.fromisoformat(event['start']['dateTime'])
+                event_end = datetime.fromisoformat(event['end']['dateTime'])
+
+                # Define the timezone using the selected offset
+                timezone = pytz.FixedOffset(int(selected_offset.replace(":", "")))
+
+                # Remove the offset
+                event_start = event_start.replace(tzinfo=timezone).astimezone(pytz.utc).replace(tzinfo=None)
+                event_end = event_end.replace(tzinfo=timezone).astimezone(pytz.utc).replace(tzinfo=None)
+
                 print("EVENT START", event_start)
                 print("SLOT END TIME", slot_end_time)
                 if (event_start < slot_end_time and event_end > current_time):
@@ -248,6 +284,8 @@ def check_availability():
 """
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
 
 
