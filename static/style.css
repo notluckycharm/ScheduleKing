@@ -1,100 +1,99 @@
 /* StyleSheet Generated with help from ChatGPT */
 body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-    color: #333;
+  font-family: "Arial", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #dae7d9;
+  color: #25453f;
+  overflow: scroll;
 }
 
 header {
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 1em;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-nav ul {
-    list-style: none;
-    display: flex;
-}
-
-nav a {
-    text-decoration: none;
-    color: #555;
-    margin: 0 1em;
+  background-color: #e5f7e3;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 2em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 main {
-    padding: 2em;
+  padding: 2em;
 }
 
 .hero {
-    background-color: #f9f9f9;
-    padding: 2em;
-    text-align: center;
+  padding: 2em;
+  text-align: center;
+  font-size: 35px;
 }
 
 .cta-button {
-    display: inline-block;
-    padding: 0.5em 1em;
-    background-color: #3498db;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
+  display: inline-block;
+  padding: 0.5em 1em;
+  background-color: #7359f5;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
 }
 
 .features {
-    margin-top: 2em;
+  margin-top: em;
+  font-size: 25px;
+}
+
+.meeting {
+  text-align: center;
+  font-size: 35px;
+  color: #25453f;
+  font-family: "Arial", sans-serif;
 }
 
 footer {
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 1em;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+  background-color: #a2aca1;
+  color: #fff;
+  text-align: center;
+  padding: 1em;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
 .cta-button {
-    display: inline-block;
-    padding: 0.5em 1em;
-    background-color: #3498db;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    border: none; /* Remove default button border */
-    cursor: pointer;
+  display: inline-block;
+  padding: 0.5em 1em;
+  background-color: #7359f5;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none; /* Remove default button border */
+  cursor: pointer;
+  font-size: 20px;
 }
 
 .cta-button:hover {
-    background-color: #2980b9; /* Darker color on hover */
+  background-color: #2980b9; /* Darker color on hover */
 }
 
 .button-group {
-    display: flex;
-    justify-content: center;
-    gap: 30px; /* Adjusted space between buttons */
+  display: flex;
+  justify-content: center;
+  gap: 30px; /* Adjusted space between buttons */
 }
 
 .meeting-code {
-    font-size: 2em; /* Large font size */
-    font-weight: bold; /* Bold font */
-    color: #333; /* Optional: Darker font color for better readability */
-    margin-top: 50px; /* Adds some space above the code */
+  font-size: 2em; /* Large font size */
+  font-weight: bold; /* Bold font */
+  color: #333; /* Optional: Darker font color for better readability */
+  margin-top: 50px; /* Adds some space above the code */
 }
 
 .centered-content {
-    text-align: center;
+  text-align: center;
 }
 .meeting-code {
-    font-size: 3em; /* Large font size for the meeting code */
-    margin: 0.5em 0; /* Spacing around the meeting code */
+  font-size: 3em; /* Large font size for the meeting code */
+  margin: 0.5em 0; /* Spacing around the meeting code */
 }
 .description {
-    font-size: 1.5em; /* Larger font size for the description */
+  font-size: 1.5em; /* Larger font size for the description */
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Meeting...</title>
+    <title>Create Meeting</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -17,17 +17,9 @@
 <body>
     <header>
         <h1>ScheduleKing</h1>
-        <nav>
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/">Get Started</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
-          </ul>
-        </nav>
       </header>
     <div class="ui container" style="margin-top: 50px;">
-        <h2 class="ui center aligned header">Create Meeting...</h2>
+        <h2 class="ui center aligned header meeting">Create Meeting...</h2>
         <form class="ui form" method="post" action="/host">
             <div class="ui grid">
                 <div class="eight wide column">
@@ -99,20 +91,7 @@
                         <label for="lunch">Lunch Time (optional):</label>
                         <input type="time" name="lunch_start" style="width: 150px;"> to 
                         <input type="time" name="lunch_end" style="width: 150px;"><br><br>
-                    </div>
-                    
-                    <!-- <div class="field">
-                        <label for="lunch">Lunch Time (optional):</label><br>
-                        <input type="text" name="lunch_start" class="timepicker" style="width: 150px;"> to 
-                        <input type="text" name="lunch_end" class="timepicker" style="width: 150px;"><br><br>
-                    </div>
-                    
-                    <div class="field">
-                        <label for="working_hours">Working Hours:</label><br>
-                        <input type="text" name="work_hours_start" class="timepicker" style="width: 150px;"> to 
-                        <input type="text" name="work_hours_end" class="timepicker" style="width: 150px;"><br><br>
-                    </div> -->
-                    
+                    </div> 
                     <div class="field">
                         <label for="invitees">Estimated # of Invitees:</label>
                         <input type="number" id="invitees" name="invitees" min="1"><br><br>
@@ -120,7 +99,10 @@
                 </div>
 
                 <div class="sixteen wide column">
-                    <button class="ui blue button center aligned" type="submit" style="margin-top: 20px; margin-left: 500px;">Create Meeting</button>
+                    <button class="ui blue button center aligned" type="submit" style="margin-top: 20px; margin-left: 500px; background-color: #7359f5;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;">Create Meeting</button>
                 </div>
         </form>
     </div>

@@ -10,40 +10,32 @@
   <body>
     <header>
       <h1>ScheduleKing</h1>
-      <nav>
-        <ul>
-          <li><a href="#">Home</a></li>
-          <li><a href="#">Get Started</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </nav>
     </header>
 
     <main>
       <section class="hero">
-          <h2>Welcome to ScheduleKing</h2>
-          <p>Your solution for easy and stress-free scheduling.</p>
+        <h2>Welcome to Schedule&#128081;</h2>
+        <p>Your solution for easy and stress-free scheduling.</p>
 
-          <div class="button-group">
-              <input
-                type="button"
-                onclick="location.href='/authorize/host';"
-                value="Host Login"
-                class="cta-button"
-              />
-              <input
-                type="button"
-                onclick="location.href='/authorize/invitee';"
-                value="Invitee Login"
-                class="cta-button"
-              />
-          </div>
+        <div class="button-group">
+          <input
+            type="button"
+            onclick="location.href='/authorize/host';"
+            value="Host Login"
+            class="cta-button"
+          />
+          <input
+            type="button"
+            onclick="location.href='/authorize/invitee';"
+            value="Invitee Login"
+            class="cta-button"
+          />
+        </div>
 
-          <p id="meetingtime" style="display: none"></p>
+        <p id="meetingtime" style="display: none"></p>
       </section>
       <section class="features">
-        <h2>Key Features(Concepts)</h2>
+        <h2>Use ScheduleKing For:</h2>
         <ul>
           <li>Choice-Free Scheduling</li>
           <li>Customizable options</li>
@@ -51,27 +43,5 @@
         </ul>
       </section>
     </main>
-
-    <footer>
-      <p>&copy; 2024 ScheduleMaster. All rights reserved.</p>
-    </footer>
-    <!-- 
-        Removed script so we can connect to API
-    <script>
-      function generateSchedule() {
-        var meetingtime = document.getElementById("meetingtime");
-        var time = Math.floor(Math.random() * 12) + 1;
-        var meridian = Math.floor(Math.random() * 2);
-        if (meridian == 0) {
-          meridian = "AM";
-        } else {
-          meridian = "PM";
-        }
-        meetingtime.innerText =
-          "Your Meeting time will be " + time + " " + meridian;
-        meetingtime.style.display = "block";
-      }
-    </script>
-    -->
   </body>
 </html>
