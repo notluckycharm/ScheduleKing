@@ -99,7 +99,8 @@ def host():
         work_hours_start = request.form.get('work_hours_start')
         work_hours_end = request.form.get('work_hours_end')
         participantcount = request.form.get("invitees")
-        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
+
+        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)[0]
 
         # Generate a 6-digit meeting code
         meeting_code = generate_meeting_code(6)
@@ -162,6 +163,7 @@ def generate_meeting_code(length=8):
     
 # Function which uses API to find the first free time slot within constraints
 # Return None if there's no free time slot
+# TODO: Change to FREE/BUSY API call
 def find_available_time_slots(duration, dates, work_hours_start, work_hours_end):
     mtg_duration = int(duration)
     dates_list = [date.strip() for date in dates.split(',')]
@@ -182,56 +184,58 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
     except Exception as e:
         print(f"An error occurred while accessing session credentials: {e}")
 
-
     available_slots = []
 
-    # TODO: Make this work for all dates in between the start and end date
+    # Iterate through all dates in the list
     for date_str in dates_list:
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         start_time = datetime.combine(date, work_hours_start)
         end_time = datetime.combine(date, work_hours_end)
+
+        # Use Free/Busy endpoint
         try:
-            events_result = service.events().list(
-                calendarId='primary',
-                timeMin=start_time.isoformat()+selected_offset,
-                timeMax=end_time.isoformat()+selected_offset,
-                singleEvents=True,
-                orderBy='startTime'
-            ).execute()
-            events = events_result.get('items', [])
-            print(events)
+            response = service.freebusy().query(body={
+                "timeMin": start_time.isoformat() + selected_offset,
+                "timeMax": end_time.isoformat() + selected_offset,
+                "timeZone": selected_offset,
+                "items": [{"id": "primary"}]
+            }).execute()
+            busy_times = response['calendars']['primary']['busy']
         except Exception as e:
             print(f"An error occurred: {e}")
             continue
 
-        current_time = start_time
-        while current_time + timedelta(minutes=mtg_duration) <= end_time:
+        # Define the timezone using the selected offset
+        #timezone = string_to_fixed_offset_timezone(selected_offset)
+        #print(timezone)
+
+        current_time = string_to_datetime_with_timezone(start_time.isoformat() + selected_offset)
+
+        # While the time we are on is within the work hours
+        while current_time + timedelta(minutes=mtg_duration) <= string_to_datetime_with_timezone(end_time.isoformat() + selected_offset):
+            # Potential free slot
             slot_end_time = current_time + timedelta(minutes=mtg_duration)
-            # TODO: Use Google Calendar API to check whether event time is free/busy
             slot_free = True
 
-            for event in events:
-                event_start = datetime.fromisoformat(event['start']['dateTime'])
-                event_end = datetime.fromisoformat(event['end']['dateTime'])
+            for busy_slot in busy_times:
+                busy_start = datetime.fromisoformat(busy_slot['start'])
+                busy_end = datetime.fromisoformat(busy_slot['end'])
 
-                # Define the timezone using the selected offset
-                timezone = pytz.FixedOffset(int(selected_offset.replace(":", "")))
+                if slot_end_time < busy_start or busy_end < current_time:
+                    continue  # The slot is free, so continue to the next busy slot
 
-                # Remove the offset
-                event_start = event_start.replace(tzinfo=timezone).astimezone(pytz.utc).replace(tzinfo=None)
-                event_end = event_end.replace(tzinfo=timezone).astimezone(pytz.utc).replace(tzinfo=None)
-
-                print("EVENT START", event_start)
-                print("SLOT END TIME", slot_end_time)
-                if (event_start < slot_end_time and event_end > current_time):
-                    slot_free = False
-                    break
+                # If the loop doesn't continue, it means the slot overlaps with a busy slot
+                slot_free = False
+                break
 
             if slot_free:
                 available_slots.append(f"{current_time.strftime('%Y-%m-%d %H:%M')} - {slot_end_time.strftime('%H:%M')}")
-            
+
+
+            # Move to the next time slot
             current_time += timedelta(minutes=mtg_duration)
 
+    print("AVAILABLE SLOTS", available_slots)
     return available_slots
 
 @app.route('/find_time', methods=['GET','POST'])
@@ -250,7 +254,7 @@ def find_time() :
             dates,
             work_hours_start, 
             work_hours_end
-        )
+        )[0]
 
         # Render the results page with the first free time slot
         return render_template('free_time.html', first_free_time_slot=first_free_time_slot)
@@ -258,30 +262,23 @@ def find_time() :
     # Render the form page for user input
     return render_template('host_form.html')
 
-"""
-# TODO: Check availability
-@app.route('/check_availability')
-def check_availability():
-    credentials = Credentials.from_authorized_user_info(session['credentials'])
-    service = build('calendar', 'v3', credentials=credentials)
-
-    # Example: Check availability for the next 24 hours
-    now = datetime.datetime.utcnow()
-    end_time = now + datetime.timedelta(hours=24)
-
-    events_result = service.events().list(
-        calendarId='primary',
-        timeMin=now.isoformat() + 'Z',
-        timeMax=end_time.isoformat() + 'Z',
-        singleEvents=True,
-        orderBy='startTime'
-    ).execute()
+def string_to_datetime_with_timezone(datetime_str):
+    # Define the format of the datetime string
+    datetime_format = "%Y-%m-%dT%H:%M:%S%z"
     
-    events = events_result.get('items', [])
-
-    # Process events and determine availability
-    return render_template('availability.html', events=events)
-"""
+    # Parse the string into a datetime object
+    dt_with_offset = datetime.strptime(datetime_str, datetime_format)
+    
+    # Extract the timezone info from the datetime object
+    timezone_offset = dt_with_offset.utcoffset()
+    
+    # Create a timezone object using the extracted offset
+    timezone_obj = pytz.FixedOffset(timezone_offset.total_seconds() // 60)
+    
+    # Set the timezone for the datetime object
+    dt_with_timezone = dt_with_offset.replace(tzinfo=timezone_obj)
+    
+    return dt_with_timezone
 
 if __name__ == '__main__':
     with app.app_context():
