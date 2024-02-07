@@ -13,6 +13,7 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 import os
 import json
+import pytz
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
@@ -33,6 +34,7 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
 
 # Path to the client secret JSON file downloaded from the Google Cloud Console
 CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com (1).json'
+API_KEY = 'AIzaSyDjCrRmfsOuV1gD6ka3Sp1Xo01FqXu2iRE'
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -163,17 +165,18 @@ def generate_meeting_code(length=8):
 def find_available_time_slots(duration, dates, work_hours_start, work_hours_end):
     mtg_duration = int(duration)
     dates_list = [date.strip() for date in dates.split(',')]
+    # Retrieve the selected timezone from the form data
+    selected_offset = request.form.get('timezone')
     
     work_hours_start = datetime.strptime(request.form.get('work_hours_start'), '%H:%M').time()
     work_hours_end = datetime.strptime(request.form.get('work_hours_end'), '%H:%M').time()
 
     try:
         credentials_data = json.loads(session['credentials'])
-        print("CREDENTIALS DATA:", credentials_data)
         credentials = Credentials.from_authorized_user_info(credentials_data)
-        service = build('calendar', 'v3', credentials=credentials)
+        service = build('calendar', 'v3', credentials=credentials, developerKey=API_KEY)
 
-    # Continue with your code logic that requires the credentials...
+    # Handle credentials errors
     except KeyError:
         print("Session credentials not found.")
     except Exception as e:
@@ -182,20 +185,21 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
 
     available_slots = []
 
+    # TODO: Make this work for all dates in between the start and end date
     for date_str in dates_list:
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         start_time = datetime.combine(date, work_hours_start)
         end_time = datetime.combine(date, work_hours_end)
-
         try:
             events_result = service.events().list(
                 calendarId='primary',
-                timeMin=start_time.isoformat(),
-                timeMax=end_time.isoformat(),
+                timeMin=start_time.isoformat()+selected_offset,
+                timeMax=end_time.isoformat()+selected_offset,
                 singleEvents=True,
                 orderBy='startTime'
             ).execute()
             events = events_result.get('items', [])
+            print(events)
         except Exception as e:
             print(f"An error occurred: {e}")
             continue
@@ -203,11 +207,22 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
         current_time = start_time
         while current_time + timedelta(minutes=mtg_duration) <= end_time:
             slot_end_time = current_time + timedelta(minutes=mtg_duration)
+            # TODO: Use Google Calendar API to check whether event time is free/busy
             slot_free = True
 
             for event in events:
                 event_start = datetime.fromisoformat(event['start']['dateTime'])
                 event_end = datetime.fromisoformat(event['end']['dateTime'])
+
+                # Define the timezone using the selected offset
+                timezone = pytz.FixedOffset(int(selected_offset.replace(":", "")))
+
+                # Remove the offset
+                event_start = event_start.replace(tzinfo=timezone).astimezone(pytz.utc).replace(tzinfo=None)
+                event_end = event_end.replace(tzinfo=timezone).astimezone(pytz.utc).replace(tzinfo=None)
+
+                print("EVENT START", event_start)
+                print("SLOT END TIME", slot_end_time)
                 if (event_start < slot_end_time and event_end > current_time):
                     slot_free = False
                     break
