@@ -26,6 +26,7 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
 
 # Path to the client secret JSON file downloaded from the Google Cloud Console
 CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com (1).json'
+API_KEY = 'AIzaSyDjCrRmfsOuV1gD6ka3Sp1Xo01FqXu2iRE'
 
 # Direct to input page
 @app.route('/')
@@ -101,17 +102,18 @@ def invitee():
 def find_available_time_slots(duration, dates, work_hours_start, work_hours_end):
     mtg_duration = int(duration)
     dates_list = [date.strip() for date in dates.split(',')]
+    # Retrieve the selected timezone from the form data
+    selected_offset = request.form.get('timezone')
     
     work_hours_start = datetime.strptime(request.form.get('work_hours_start'), '%H:%M').time()
     work_hours_end = datetime.strptime(request.form.get('work_hours_end'), '%H:%M').time()
 
     try:
         credentials_data = json.loads(session['credentials'])
-        print("CREDENTIALS DATA:", credentials_data)
         credentials = Credentials.from_authorized_user_info(credentials_data)
-        service = build('calendar', 'v3', credentials=credentials)
+        service = build('calendar', 'v3', credentials=credentials, developerKey=API_KEY)
 
-    # Continue with your code logic that requires the credentials...
+    # Handle credentials errors
     except KeyError:
         print("Session credentials not found.")
     except Exception as e:
@@ -124,12 +126,11 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         start_time = datetime.combine(date, work_hours_start)
         end_time = datetime.combine(date, work_hours_end)
-
         try:
             events_result = service.events().list(
                 calendarId='primary',
-                timeMin=start_time.isoformat(),
-                timeMax=end_time.isoformat(),
+                timeMin=start_time.isoformat()+selected_offset,
+                timeMax=end_time.isoformat()+selected_offset,
                 singleEvents=True,
                 orderBy='startTime'
             ).execute()
