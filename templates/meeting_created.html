@@ -8,6 +8,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+    header {
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 1em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #555;
+            margin: 0 1em;
+        }
       body, html {
           height: 100%;
           margin: 0;
@@ -34,6 +52,16 @@
   </style>
 </head>
 <body>
+    <header>
+    <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/">Get Started</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+    </header><br />
+    <main>
     <div class="ui container centered-content" style="margin-top: 50px; display:none" id="Timeslot">
         <div class="ui segment">
         <h1>
@@ -55,6 +83,7 @@
           <p id="participantCount" class="ui center aligned">0 out of {{ participantcount }} participants have filled out their calendar availability!</p>
       </div>
     </div>
+    </main> 
     <script type="text/javascript">
         var participantNum = 0;
         var participantTotal = "{{ participantcount }}";
