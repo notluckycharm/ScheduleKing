@@ -171,7 +171,14 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
     
     work_hours_start = datetime.strptime(request.form.get('work_hours_start'), '%H:%M').time()
     work_hours_end = datetime.strptime(request.form.get('work_hours_end'), '%H:%M').time()
-    
+    print(request.form.get('work_hours_start'))
+
+    # TODO: Get lunchtime to work
+    """
+    lunch_start = datetime.strptime(request.form.get('lunch_start'), '%H:%M').time()
+    lunch_end = datetime.strptime(request.form.get('lunch_end'), '%H:%M').time()
+    """
+
     try:
         credentials_data = json.loads(session['credentials'])
         credentials = Credentials.from_authorized_user_info(credentials_data)
