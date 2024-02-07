@@ -25,10 +25,7 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly',
     'https://www.googleapis.com/auth/calendar.events.owned']
 
 # Path to the client secret JSON file downloaded from the Google Cloud Console
-CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com.json'
-# Define working hours (based on user input from HTML form)
-working_hours_start = datetime.strptime('09:00', '%H:%M').time()
-working_hours_end = datetime.strptime('17:00', '%H:%M').time()
+CLIENT_SECRET_FILE = 'json/client_secret_24926313134-10lhg1c7j7qgsm0ak32hqau8uj6al9ah.apps.googleusercontent.com (1).json'
 
 # Direct to input page
 @app.route('/')
@@ -105,20 +102,28 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
     mtg_duration = int(duration)
     dates_list = [date.strip() for date in dates.split(',')]
     
-    # Convert working hours to datetime.time
-    work_begin = datetime.strptime(work_hours_start, '%H:%M').time()
-    work_end = datetime.strptime(work_hours_end, '%H:%M').time()
+    work_hours_start = datetime.strptime(request.form.get('work_hours_start'), '%H:%M').time()
+    work_hours_end = datetime.strptime(request.form.get('work_hours_end'), '%H:%M').time()
 
-    credentials_data = json.loads(session['credentials'])
-    credentials = Credentials.from_authorized_user_info(credentials_data)
-    service = build('calendar', 'v3', credentials=credentials)
+    try:
+        credentials_data = json.loads(session['credentials'])
+        print("CREDENTIALS DATA:", credentials_data)
+        credentials = Credentials.from_authorized_user_info(credentials_data)
+        service = build('calendar', 'v3', credentials=credentials)
+
+    # Continue with your code logic that requires the credentials...
+    except KeyError:
+        print("Session credentials not found.")
+    except Exception as e:
+        print(f"An error occurred while accessing session credentials: {e}")
+
 
     available_slots = []
 
     for date_str in dates_list:
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        start_time = datetime.combine(date, work_begin)
-        end_time = datetime.combine(date, work_end)
+        start_time = datetime.combine(date, work_hours_start)
+        end_time = datetime.combine(date, work_hours_end)
 
         try:
             events_result = service.events().list(
@@ -155,17 +160,19 @@ def find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
 @app.route('/find_time', methods=['GET','POST'])
 def find_time() :
     if request.method == 'POST':
+        work_hours_start = request.form.get('work_hours_start')
+        work_hours_end = request.form.get('work_hours_end')
         # Get user input from the form
         duration = request.form.get('duration')
         dates = request.form.get('dates')
         print(f"duration: {duration}")
         print(f"dates: {dates}")
         # Process user input and find the first free time slot
-        first_free_time_slot = find_first_free_time_slot(
-            working_hours_start, 
-            working_hours_end, 
-            duration, 
-            dates
+        first_free_time_slot = find_available_time_slots(
+            duration,
+            dates,
+            work_hours_start, 
+            work_hours_end
         )
 
         # Render the results page with the first free time slot
@@ -174,6 +181,7 @@ def find_time() :
     # Render the form page for user input
     return render_template('host_form.html')
 
+"""
 # TODO: Check availability
 @app.route('/check_availability')
 def check_availability():
@@ -196,7 +204,7 @@ def check_availability():
 
     # Process events and determine availability
     return render_template('availability.html', events=events)
-
+"""
 if __name__ == '__main__':
     app.run(ssl_context=('cert.pem', 'key.pem'), debug=True)
 
