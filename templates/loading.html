@@ -15,12 +15,12 @@
         <button>No</button>
     </div>
   <div id="default">
-    <h1>Your meeting code is {{ meeting_code }}</h1>
-    <p>Please send this code to your invitees. Once enough people have connected their calendars to Schedule King, Schedule King will automatically find the best time for your team</p>
-    <p id="participantCount">0 out of {{ participantcount }} participants have filled out their calendar availability!</p>
+    <h1>Just a Moment! </h1>
+    <p>Not enough Invitees have given their availability. Once enough people have connected their calendars to Schedule King, Schedule King will automatically find the best time for your team</p>
+    <p id="participantCount">1 out of {{ participantcount }} participants have filled out their calendar availability!</p>
   </div>
   <script type="text/javascript">
-    var participantNum = 0;
+    var participantNum = 1;
     var participantTotal = "{{ participantcount }}";
     var targetCount = Math.ceil(participantTotal * 2 / 3);
     var intervalId;
@@ -32,7 +32,6 @@
             clearInterval(intervalId);
             document.getElementById("Timeslot").style.display = "block";
             document.getElementById("default").style.display = "none";
-
         }
     }
 
