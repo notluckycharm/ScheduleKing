@@ -122,12 +122,12 @@
         }
 
         function changeTextYes() {
-            var message = document.getElementbyId("message");
+            var message = document.getElementById("message");
             message.innerHTML = "Your Meeting Organizer has been alerted that you can make the meeting. If enough people can make it, Schedule King will create an invite for you!";
         }
         function changeTextNo() {
-            var message = document.getElementbyId("message");
-            message.innerHTML = "Your Meeting Organizer has been alerted that you can make the meeting. If enough people can make it, Schedule King will create an invite for you!";
+            var message = document.getElementById("message");
+            message.innerHTML = "Your Meeting Organizer has been alerted that you can't make the meeting. If enough people can't make it, Schedule King will automatically find the next best time!";
         }
         intervalId = setInterval(updateParticipantCount, 1000); // Update every 1000 milliseconds (1 second)
 
