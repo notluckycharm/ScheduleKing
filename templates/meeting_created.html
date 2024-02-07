@@ -52,15 +52,6 @@
   </style>
 </head>
 <body>
-    <header>
-    <nav>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/">Get Started</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-    </header><br />
     <main>
     <div class="ui container centered-content" style="margin-top: 50px; display:none" id="Timeslot">
         <div class="ui segment">
@@ -68,8 +59,15 @@
             You should meet on: {{ available_slots }}
         </h1>
         <p>Does this time still work for you?</p>
-        <button>Yes</button>
-        <button>No</button>
+        <button id="yes" class="cta-button" onclick="changeTextYes()">Yes</button>
+        <button id="no" class="cta-button" onclick="changeTextNo()">No</button><br /><br />
+        <p id="message"></p>
+        <input
+        type="button"
+        onclick="location.href='/';"
+        value="Go Home"
+        class="cta-button"
+        />
         </div>
     </div>
     <div class="ui container centered-content" style="margin-top: 50px;" id="default">
@@ -81,7 +79,13 @@
           </div>
           <p>Please send this code to your invitees. Once enough people have connected their calendars to Schedule King, Schedule King will automatically find the best time for your team.</p>
           <p id="participantCount" class="ui center aligned">0 out of {{ participantcount }} participants have filled out their calendar availability!</p>
-      </div>
+          <input
+            type="button"
+            onclick="location.href='/';"
+            value="Go Home"
+            class="cta-button"
+        />
+        </div>
     </div>
     </main> 
     <script type="text/javascript">
@@ -117,7 +121,15 @@
             }
         }
 
-        intervalId = setInterval(updateParticipantCount, 2000); // Update every 1000 milliseconds (1 second)
+        function changeTextYes() {
+            var message = document.getElementbyId("message");
+            message.innerHTML = "Your Meeting Organizer has been alerted that you can make the meeting. If enough people can make it, Schedule King will create an invite for you!";
+        }
+        function changeTextNo() {
+            var message = document.getElementbyId("message");
+            message.innerHTML = "Your Meeting Organizer has been alerted that you can make the meeting. If enough people can make it, Schedule King will create an invite for you!";
+        }
+        intervalId = setInterval(updateParticipantCount, 1000); // Update every 1000 milliseconds (1 second)
 
     </script>
 </body>
