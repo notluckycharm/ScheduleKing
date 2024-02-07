@@ -108,8 +108,8 @@ def meeting_created():
     meeting_code = session.get('meeting_code')
     if not meeting_code:
         return redirect('/')  # Redirect if no meeting code is found
-
-    return render_template('meeting_created.html', meeting_code=meeting_code)
+    participantcount = 20
+    return render_template('meeting_created.html', meeting_code=meeting_code, participantcount=participantcount)
 
     # return render_template('host_form.html')
 

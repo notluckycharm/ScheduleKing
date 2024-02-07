@@ -9,11 +9,11 @@
   <div id="default">
     <h1>Your meeting code is {{ meeting_code }}</h1>
     <p>Please send this code to your invitees. Once enough people have connected their calendars to Schedule King, Schedule King will automatically find the best time for your team</p>
-    <p id="participantCount">0 out of {{ partnum }} participants have filled out their calendar availability!</p>
+    <p id="participantCount">0 out of {{ participantcount }} participants have filled out their calendar availability!</p>
   </div>
   <script type="text/javascript">
     var participantNum = 0;
-    var participantTotal = 6;
+    var participantTotal = "{{ participantcount }}";
     var targetCount = Math.ceil(participantTotal * 2 / 3);
     var intervalId;
 
@@ -28,7 +28,7 @@
         }
     }
 
-    intervalId = setInterval(updateParticipantCount, 5000); // Update every 10000 ticks
+    intervalId = setInterval(updateParticipantCount, 1000); // Update every 10000 ticks
 </script>
   </body>
 </html>
