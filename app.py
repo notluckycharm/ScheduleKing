@@ -3,7 +3,8 @@ This file contains the main content for the ScheduleKing App, an Alternative
 Scheduling App which tells YOU when you will be meeting, whether you like
 it, or not.
 """
-
+import random
+import string
 from flask import Flask, render_template, redirect, request, session
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
@@ -72,18 +73,32 @@ def callback():
     else:
         return redirect('/error') # Redirect to an error page or a default route
 
-# two functions below with the help of ChatGPT
 @app.route('/host', methods=['GET', 'POST'])
 def host():
     if request.method == 'POST':
+        # extract necessary info
         duration = request.form.get('duration')
         dates = request.form.get('dates')
         work_hours_start = request.form.get('work_hours_start')
         work_hours_end = request.form.get('work_hours_end')
-        available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
-        return render_template('available_slots.html', slots=available_slots)
+        # available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
 
-    return render_template('host_form.html')
+        # Generate a 6-digit meeting code
+        meeting_code = generate_meeting_code(6)
+        session['meeting_code'] = meeting_code
+        return redirect('/meeting_created')
+
+        # return render_template('available_slots.html', slots=available_slots)
+
+@app.route('/meeting_created')
+def meeting_created():
+    meeting_code = session.get('meeting_code')
+    if not meeting_code:
+        return redirect('/')  # Redirect if no meeting code is found
+
+    return render_template('meeting_created.html', meeting_code=meeting_code)
+
+    # return render_template('host_form.html')
 
 @app.route('/invitee', methods=['GET', 'POST'])
 def invitee():
@@ -96,6 +111,16 @@ def invitee():
         available_slots = find_available_time_slots(duration, dates, work_hours_start, work_hours_end)
     return render_template('invitee_form.html')
 
+# Generates random meeting code
+def generate_meeting_code(length=8):
+    # Define the pool of characters
+    characters = string.ascii_letters + string.digits
+
+    # Generate a random meeting code
+    meeting_code = ''.join(random.choice(characters) for _ in range(length))
+    
+    return meeting_code
+    
 # Function which uses API to find the first free time slot within constraints
 # Return None if there's no free time slot
 def find_available_time_slots(duration, dates, work_hours_start, work_hours_end):

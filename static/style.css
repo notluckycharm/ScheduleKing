@@ -80,3 +80,10 @@ footer {
     justify-content: center;
     gap: 30px; /* Adjusted space between buttons */
 }
+
+.meeting-code {
+    font-size: 2em; /* Large font size */
+    font-weight: bold; /* Bold font */
+    color: #333; /* Optional: Darker font color for better readability */
+    margin-top: 50px; /* Adds some space above the code */
+}
