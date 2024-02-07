@@ -36,26 +36,28 @@ def home():
 # Direct to authorization page
 @app.route('/authorize/<role>')
 def authorize(role):
-    # save the role info for redirecting purpose
+    # Save the role info for redirecting purpose
     session['user_role'] = role
 
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRET_FILE, 
         scopes=SCOPES,
         redirect_uri='https://127.0.0.1:5000/callback'
-
     )
     authorization_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true'
     )
     session['state'] = state
-    return redirect(authorization_url)
+    return redirect(authorization_url) 
 
 # Callback Google Calendar API
 @app.route('/callback')
 def callback():
-    state = session['state']
+    state = session.get('state')
+    if not state:
+        # Handle the missing state case, perhaps redirect to an error page or log the issue
+        return redirect('/error')
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRET_FILE,
         scopes=SCOPES,
