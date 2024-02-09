@@ -13,6 +13,11 @@
     <link rel="stylesheet" href="/../static/style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery-ui-multidatespicker/jquery-ui.multidatespicker.js"></script>
+    <style>
+        .required-asterisk {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -24,7 +29,7 @@
             <div class="ui grid">
                 <div class="eight wide column">
                     <div class="field">
-                        <label for="duration">Duration:</label>
+                        <label for="duration">Duration:<span class="required-asterisk">*</span></label>
                         <select name="duration" id="duration" class="ui fluid dropdown">
                             <option value="30">30 mins</option>
                             <option value="60">60 mins</option>
@@ -35,17 +40,17 @@
                     </div>
                     <!-- Hidden -->
                     <div class="field" id="customDuration" style="display: none;">
-                        <label for="custom_duration">Enter Duration (in minutes):</label>
+                        <label for="custom_duration">Enter Duration (in minutes):<span class="required-asterisk">*</span></label>
                         <input type="number" id="custom_duration" name="custom_duration" min="1">
                     </div>
         
                     <div class="field">
-                        <label for="description">Description:</label>
+                        <label for="description">Description:<span class="required-asterisk">*</span></label>
                         <textarea name="description" placeholder="Meeting for class project..."></textarea>
                     </div>
 
                     <div class="field">
-                        <label for="dates">Dates:</label>
+                        <label for="dates">Dates:<span class="required-asterisk">*</span></label>
                         <input type="text" id="dates" name="dates">
                     </div>
 
@@ -53,7 +58,7 @@
 
                 <div class="eight wide column">
                     <div class="field">
-                        <label for="timezone">Time Zone:</label>
+                        <label for="timezone">Time Zone:<span class="required-asterisk">*</span></label>
                         <select name="timezone">
                             <!-- US Time Zones -->
                             <option value="-05:00">(UTC-05:00) Eastern Time (US & Canada)</option>
@@ -82,18 +87,20 @@
                     </div>
                     
                     <div class="field">
-                        <label for="working_hours">Working Hours:</label>
+                        <label for="working_hours">Working Hours:<span class="required-asterisk">*</span></label>
+                        <p>Your standard daily work period.</p>
                         <input type="time" name="work_hours_start" style="width: 150px;"> to 
                         <input type="time" name="work_hours_end" style="width: 150px;"><br><br>
                     </div>
 
                     <div class="field">
-                        <label for="lunch">Lunch Time (optional):</label>
+                        <label for="lunch">Lunch Time (optional): </label>
+                        <p>A no-meeting zone to protect your break time for rest and meals.</p>
                         <input type="time" name="lunch_start" style="width: 150px;"> to 
                         <input type="time" name="lunch_end" style="width: 150px;"><br><br>
                     </div> 
                     <div class="field">
-                        <label for="invitees">Estimated # of Invitees:</label>
+                        <label for="invitees">Estimated # of Invitees:<span class="required-asterisk">*</span></label>
                         <input type="number" id="invitees" name="invitees" min="1"><br><br>
                     </div>
                 </div>

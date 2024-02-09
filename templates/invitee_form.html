@@ -5,6 +5,11 @@
     <link rel="stylesheet" href="/../static/style.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <style>
+        .required-asterisk {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <div class="ui container" style="margin-top: 50px;">
@@ -49,7 +54,7 @@
             </div>
 
             <div class="field">
-                <label for="working_hours">Working Hours:</label>
+                <label for="working_hours">Working Hours:<span class="required-asterisk">*</span></label>
                 <input type="time" name="work_hours_start" style="width: 150px;"> to 
                 <input type="time" name="work_hours_end" style="width: 150px;"><br><br>
             </div>
